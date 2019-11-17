@@ -11,12 +11,12 @@ If you want to add this bot to your server, go to [official website](http://dumm
 ### Requirements
 
 * Python 3.5 / 3.6
-* discord.py 0.16 ([github](https://github.com/Rapptz/discord.py))
+* discord.py - 0.16 ([github](https://github.com/Rapptz/discord.py))
 
 
 ### Usage
 
-* Edit `dummy.py` and write you Discord bot token as value of `DISCORD_TOKEN`
+* Edit `dummy.py` and write your Discord bot token as value of `DISCORD_TOKEN`
 
 * (Optional) Add your discord ID to `DISCORD_ADMINS`
 
