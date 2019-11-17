@@ -1,0 +1,15 @@
+version: '3.3'
+
+services:
+  dummybot:
+    image: dummybot_discord:latest
+
+    restart: always
+
+    deploy:
+        mode: replicated
+        replicas: 1
+        
+    environment:
+      - DISCORD_TOKEN=<token>
+      - DISCORD_ADMINS=215068875648139264

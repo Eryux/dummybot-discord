@@ -29,6 +29,7 @@ import signal
 import logging
 import logging.handlers
 import time
+import os
 
 # GLOBALS ---------------------------------------
 
@@ -74,6 +75,11 @@ def on_message(message):
 if __name__ == "__main__":
     signal.signal(signal.SIGTERM, terminate)
     signal.signal(signal.SIGINT, terminate)
+
+    if "DISCORD_TOKEN" in os.environ:
+        DISCORD_TOKEN = os.environ['DISCORD_TOKEN']
+    if "DISCORD_ADMINS" in os.environ:
+        DISCORD_ADMINS = os.environ['DISCORD_ADMINS'].split(',')
 
     # Set-up logging
     logger = logging.getLogger('discord')
