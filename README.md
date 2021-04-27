@@ -10,8 +10,9 @@ If you want to add this bot to your server, go to [official website](http://dumm
 
 ### Requirements
 
-* Python 3.5 / 3.6
-* discord.py - 0.16 ([github](https://github.com/Rapptz/discord.py))
+* Python 3.7
+* discord.py - 1.7.1 ([github](https://github.com/Rapptz/discord.py))
+* PyNaCl - 1.4.0
 
 
 ### Usage
@@ -23,6 +24,8 @@ If you want to add this bot to your server, go to [official website](http://dumm
 * Launch `dummy.py` using python `python3 ./dummy.py`
 
 * Use command `@<bot_name> destroy` to stop the bot 
+
+* Use command `@<bot_name> join` to make the bot join you in a vocal channel 
 
 
 You can also run it in a Docker container :

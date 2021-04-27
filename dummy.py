@@ -3,7 +3,7 @@
 """
 MIT License
 
-Copyright (c) 2019, Candia Nicolas
+Copyright (c) 2021, Candia Nicolas
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,80 +26,79 @@ SOFTWARE."""
 import discord
 import asyncio
 import signal
-import logging
-import logging.handlers
-import time
 import os
 
 # GLOBALS ---------------------------------------
 
 # Discord BOT Token
-DISCORD_TOKEN = "DISCORD-BOT-TOKEN"
+DISCORD_TOKEN = "BOT_TOKEN"
 
-# Discord admins user id, required for destroy command
-DISCORD_ADMINS = ['215068875648139264']
-
-# Discord client
-client = discord.Client()
-
-# Stop flag
-stop = False
+# Discord admins user id, required for commands
+DISCORD_ADMINS = [215068875648139264]
 
 # UTILS -----------------------------------------
 
-def terminate():
-    global stop
-    stop = True
-    if client.loop.is_running():
-        client.loop.stop()
+class DummyClient(discord.Client):
 
-# EVENTS ----------------------------------------
+    def __init__(self, intents=None):
+        super().__init__(intents=intents)
 
-@client.event
-@asyncio.coroutine
-def on_ready():
-    print("Dummy bot is now loaded !")
+    async def on_message(self, message):
+        if message.channel.type == discord.channel.ChannelType.text:
+            if "<@!{0}>".format(self.user.id) or "<@{0}>".format(self.user.id):
 
-@client.event
-@asyncio.coroutine
-def on_message(message):
-    mention = "<@{0}>".format(client.user.id)
-    if message.content.startswith(mention):
-        command = message.content[len(mention)::].strip()
-        if command == 'destroy' and message.author.id in DISCORD_ADMINS:
-            terminate()
-            yield from asyncio.sleep(1)
+                args = message.content.strip().split(' ')
+
+                if len(args) > 1:
+                    if args[1] == "destroy" and message.author.id in DISCORD_ADMINS: # stop the bot
+                        await self.logout()
+                        self.stop()
+
+                    elif args[1] == "join": # join vocal channel
+                        channel = None
+                        for channel in message.guild.channels:
+                            if isinstance(channel, discord.VoiceChannel):
+                                for member in channel.members:
+                                    if member.id == message.author.id:
+                                        for voice_channel in self.voice_clients:
+                                            if message.guild.id == voice_channel.guild.id:
+                                                print("run")
+                                                await voice_channel.disconnect(force=True)
+                                                break
+                                        await channel.connect()
+                                        break
+
+    async def on_ready(self):
+        print("[DUMMYBOT] Discord client loaded")
+
+    async def on_connect(self):
+        print("[DUMMYBOT] connected to Discord")
+
+    async def on_disconnected(self):
+        print("[DUMMYBOT] disconnected from Discord")
+
+    def stop(self):
+        exit()
     
 # MAIN ------------------------------------------
 
 if __name__ == "__main__":
-    signal.signal(signal.SIGTERM, terminate)
-    signal.signal(signal.SIGINT, terminate)
+    print("[DUMMYBOT] Discord started")
 
     if "DISCORD_TOKEN" in os.environ:
         DISCORD_TOKEN = os.environ['DISCORD_TOKEN']
     if "DISCORD_ADMINS" in os.environ:
-        DISCORD_ADMINS = os.environ['DISCORD_ADMINS'].split(',')
-
-    # Set-up logging
-    logger = logging.getLogger('discord')
-    logger.setLevel(logging.WARNING)
-    log_handler = logging.handlers.RotatingFileHandler(filename='./logs/dummy.log', 
-        encoding='utf-8', mode='a', maxBytes=10*1024*1024, backupCount=5)
-    log_handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-    logger.addHandler(log_handler)
+        DISCORD_ADMINS = [int(s) for s in os.environ['DISCORD_ADMINS'].split(',')]
 
     # Run client
-    while not stop:
-        try:
-            client.loop.run_until_complete(client.start(DISCORD_TOKEN))
-        except KeyboardInterrupt:
-            stop = True
-        except BaseException as e:
-            if not stop:
-                print("Client disconnected, retry in 15 seconds ...")
-                time.sleep(15)
-    
-    # Exit
-    client.loop.run_until_complete(client.logout())
-    client.loop.close()
+    intents = discord.Intents.default()
+    intents.members = True
+
+    client = DummyClient(intents=intents)
+
+    signal.signal(signal.SIGTERM, client.stop)
+    signal.signal(signal.SIGINT, client.stop)
+
+    client.run(DISCORD_TOKEN)
+
+    print("[DUMMYBOT] terminated")
