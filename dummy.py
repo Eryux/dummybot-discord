@@ -24,7 +24,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
 import discord
-import asyncio
 import signal
 import os
 
@@ -50,11 +49,12 @@ class DummyClient(discord.Client):
                 args = message.content.strip().split(' ')
 
                 if len(args) > 1:
-                    if args[1] == "destroy" and message.author.id in DISCORD_ADMINS: # stop the bot
-                        await self.logout()
-                        self.stop()
+                    # Command for stopping the bot, can only be used by Discord user with id in DISCORD_ADMINS
+                    if args[1] == "destroy" and message.author.id in DISCORD_ADMINS:
+                        await self.close()
 
-                    elif args[1] == "join": # join vocal channel
+                    # Command to force the bot to join your channel
+                    elif args[1] == "join":
                         channel = None
                         for channel in message.guild.channels:
                             if isinstance(channel, discord.VoiceChannel):
@@ -62,43 +62,53 @@ class DummyClient(discord.Client):
                                     if member.id == message.author.id:
                                         for voice_channel in self.voice_clients:
                                             if message.guild.id == voice_channel.guild.id:
-                                                print("run")
                                                 await voice_channel.disconnect(force=True)
                                                 break
                                         await channel.connect()
                                         break
 
+
     async def on_ready(self):
         print("[DUMMYBOT] Discord client loaded")
+
 
     async def on_connect(self):
         print("[DUMMYBOT] connected to Discord")
 
+
     async def on_disconnected(self):
         print("[DUMMYBOT] disconnected from Discord")
 
+
     def stop(self):
         exit()
-    
+
+
 # MAIN ------------------------------------------
 
 if __name__ == "__main__":
     print("[DUMMYBOT] Discord started")
 
+    # Bot configs
     if "DISCORD_TOKEN" in os.environ:
         DISCORD_TOKEN = os.environ['DISCORD_TOKEN']
     if "DISCORD_ADMINS" in os.environ:
         DISCORD_ADMINS = [int(s) for s in os.environ['DISCORD_ADMINS'].split(',')]
 
-    # Run client
+    # Discord bot intents
     intents = discord.Intents.default()
     intents.members = True
 
+    # Run discord bot client
     client = DummyClient(intents=intents)
 
+    # Set-up stop/exit signal
     signal.signal(signal.SIGTERM, client.stop)
     signal.signal(signal.SIGINT, client.stop)
 
     client.run(DISCORD_TOKEN)
 
     print("[DUMMYBOT] terminated")
+
+
+# End of file dummy.py
