@@ -3,9 +3,9 @@
 DummyBOT is a Discord Bot that perform the most important task on your Discord server, doing nothing.
 It will always do nothing, whatever you do !
 
-~~If you want to add this bot to your server, go to [official website](http://dummybot.pawz.xyz/)~~
+~~If you want to add this bot to your server, go to official website.~~
 
-Update 11-13-2021: Official bot is stopped and there is no actual plan to re-launch it. You can always run your own version of the bot by yourself.
+**Update 11-13-2021: Official bot is stopped and there is no actual plan to re-launch it. You can always run your own version of the bot by yourself.**
 
 **Next part is only for people who want to launch their own version of DummyBOT**
 
